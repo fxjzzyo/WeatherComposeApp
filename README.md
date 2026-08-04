@@ -1,2 +1,2 @@
 # WeatherComposeApp
-A weather forecast android app with compse ui.
+A weather forecast android app with compose ui.
