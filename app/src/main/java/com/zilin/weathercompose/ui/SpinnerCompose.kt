@@ -46,7 +46,6 @@ fun OfficialSpinner(
         onExpandedChange = { expanded = !expanded },
         modifier = modifier
             .width(180.dp)
-            .padding(top = 40.dp)
     ) {
         OutlinedTextField(
             value = selectedValue,
