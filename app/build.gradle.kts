@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     implementation(libs.material)
+    implementation(libs.navigation.compose)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
@@ -79,5 +80,7 @@ dependencies {
     implementation(libs.androidx.compose.runtime.livedata)
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
+
+    implementation(libs.androidx.navigation.compose)
 
 }
