@@ -6,6 +6,7 @@ import com.example.kotlinweather2.data.daily.WeatherDailyInfo
 import com.example.kotlinweather2.data.daily.WeatherDailyResponse
 import com.zilin.weathercompose.data.Location
 import com.zilin.weathercompose.data.WeatherInfo
+import com.zilin.weathercompose.data.db.SelectCityItem
 
 
 object FakeData {
@@ -85,4 +86,60 @@ object FakeData {
         "苏州", "无锡", "宁波", "温州", "东莞", "佛山",
         "珠海", "惠州", "泉州", "烟台", "潍坊", "唐山"
     )
+
+
+
+    fun getMockSelectCityList(): List<SelectCityItem> {
+        return listOf(
+            SelectCityItem("北京", "101010100", "北京市"),
+            SelectCityItem("上海", "101020100", "上海市"),
+            SelectCityItem("广州", "101280101", "广东省"),
+            SelectCityItem("深圳", "101280601", "广东省"),
+            SelectCityItem("天津", "101030100", "天津市"),
+            SelectCityItem("重庆", "101040100", "重庆市"),
+            SelectCityItem("西安", "101110101", "陕西省"),
+            SelectCityItem("成都", "101270101", "四川省"),
+            SelectCityItem("杭州", "101210101", "浙江省"),
+            SelectCityItem("南京", "101190101", "江苏省"),
+            SelectCityItem("武汉", "101200101", "湖北省"),
+            SelectCityItem("郑州", "101180101", "河南省"),
+            SelectCityItem("长沙", "101250101", "湖南省"),
+            SelectCityItem("济南", "101120101", "山东省"),
+            SelectCityItem("青岛", "101120201", "山东省"),
+            SelectCityItem("沈阳", "101070101", "辽宁省"),
+            SelectCityItem("大连", "101070201", "辽宁省"),
+            SelectCityItem("哈尔滨", "101050101", "黑龙江省"),
+            SelectCityItem("长春", "101060101", "吉林省"),
+            SelectCityItem("石家庄", "101090101", "河北省"),
+            SelectCityItem("太原", "101100101", "山西省"),
+            SelectCityItem("合肥", "101220101", "安徽省"),
+            SelectCityItem("福州", "101230101", "福建省"),
+            SelectCityItem("厦门", "101230201", "福建省"),
+            SelectCityItem("昆明", "101290101", "云南省"),
+            SelectCityItem("贵阳", "101260101", "贵州省"),
+            SelectCityItem("南宁", "101130101", "广西壮族自治区"),
+            SelectCityItem("海口", "101310101", "海南省"),
+            SelectCityItem("三亚", "101310201", "海南省"),
+            SelectCityItem("兰州", "101160101", "甘肃省"),
+            SelectCityItem("银川", "101170101", "宁夏回族自治区"),
+            SelectCityItem("西宁", "101150101", "青海省"),
+            SelectCityItem("乌鲁木齐", "101140101", "新疆维吾尔自治区"),
+            SelectCityItem("呼和浩特", "101080101", "内蒙古自治区"),
+            SelectCityItem("拉萨", "101120401", "西藏自治区"),
+            SelectCityItem("苏州", "101190401", "江苏省"),
+            SelectCityItem("无锡", "101190201", "江苏省"),
+            SelectCityItem("宁波", "101210401", "浙江省"),
+            SelectCityItem("温州", "101210701", "浙江省"),
+            SelectCityItem("东莞", "101281601", "广东省"),
+            SelectCityItem("佛山", "101280801", "广东省"),
+            SelectCityItem("珠海", "101280701", "广东省"),
+            SelectCityItem("惠州", "101281301", "广东省"),
+            SelectCityItem("泉州", "101230501", "福建省"),
+            SelectCityItem("烟台", "101120501", "山东省"),
+            SelectCityItem("潍坊", "101120601", "山东省"),
+            SelectCityItem("唐山", "101090601", "河北省")
+        )
+    }
+
+
 }
