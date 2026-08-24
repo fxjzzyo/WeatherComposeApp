@@ -98,4 +98,8 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp("androidx.room:room-compiler:${libs.versions.room.get()}")
 
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
+
+
 }
