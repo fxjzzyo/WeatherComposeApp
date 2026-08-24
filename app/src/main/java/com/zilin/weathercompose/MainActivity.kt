@@ -36,8 +36,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -60,13 +63,17 @@ import androidx.navigation.navArgument
 import com.example.kotlinweather2.data.daily.WeatherDaily
 import com.zilin.weathercompose.data.DrawerMenuItemBean
 import com.zilin.weathercompose.data.WeatherDailyState
+import com.zilin.weathercompose.data.fake.FakeData
 import com.zilin.weathercompose.data.remote.WeatherRetrofitClient
 import com.zilin.weathercompose.data.repository.WeatherRepository
 import com.zilin.weathercompose.ui.about.About
+import com.zilin.weathercompose.ui.bg.BgNavHostPage
 import com.zilin.weathercompose.ui.bg.BgSetting
 import com.zilin.weathercompose.ui.city.FavoriteCityNavHostPage
 import com.zilin.weathercompose.ui.theme.WeatherComposeTheme
 import com.zilin.weathercompose.ui.weather.WeatherHomeScreen
+import com.zilin.weathercompose.util.BgDataStore
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 
@@ -78,11 +85,20 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
         val api = WeatherRetrofitClient.api
         val repository = WeatherRepository(api)
         val viewModel = WeatherViewModel(repository)
         setContent {
+            var currentBgIndex by remember {
+                mutableIntStateOf(0)
+            }
+            val context = LocalContext.current
+
+            LaunchedEffect(Unit) {
+                BgDataStore.getBgIndexFlow(context).collectLatest { index ->
+                    currentBgIndex = index
+                }
+            }
             WeatherComposeTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -170,7 +186,7 @@ class MainActivity : ComponentActivity() {
                             }
                         ) {
                             Image(
-                                painterResource(R.drawable.bg1),
+                                painterResource(FakeData.bgResList[currentBgIndex]),
                                 contentDescription = "",
                                 modifier = Modifier.fillMaxSize(),
                                 contentScale = ContentScale.Crop
@@ -218,7 +234,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                 }
                                 composable("bg_setting") {
-                                    BgSetting()
+                                    BgNavHostPage()
                                 }
                                 composable("about") {
                                     About()

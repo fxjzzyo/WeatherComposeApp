@@ -4,6 +4,7 @@ import com.example.kotlinweather2.data.WeatherNow
 import com.example.kotlinweather2.data.daily.WeatherDaily
 import com.example.kotlinweather2.data.daily.WeatherDailyInfo
 import com.example.kotlinweather2.data.daily.WeatherDailyResponse
+import com.zilin.weathercompose.R
 import com.zilin.weathercompose.data.Location
 import com.zilin.weathercompose.data.WeatherInfo
 import com.zilin.weathercompose.data.db.SelectCityItem
@@ -140,6 +141,15 @@ object FakeData {
             SelectCityItem("唐山", "101090601", "河北省")
         )
     }
+
+    // ========= 在这里填入你的drawable背景图，4‑5张 =========
+    val bgResList = listOf(
+        R.drawable.bg1,
+        R.drawable.bg2,
+        R.drawable.bg3,
+        R.drawable.bg4,
+        R.drawable.bg5
+    )
 
 
 }
