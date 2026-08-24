@@ -67,6 +67,7 @@ import com.zilin.weathercompose.data.fake.FakeData
 import com.zilin.weathercompose.data.remote.WeatherRetrofitClient
 import com.zilin.weathercompose.data.repository.WeatherRepository
 import com.zilin.weathercompose.ui.about.About
+import com.zilin.weathercompose.ui.about.AboutNavHostPage
 import com.zilin.weathercompose.ui.bg.BgNavHostPage
 import com.zilin.weathercompose.ui.bg.BgSetting
 import com.zilin.weathercompose.ui.city.FavoriteCityNavHostPage
@@ -237,7 +238,7 @@ class MainActivity : ComponentActivity() {
                                     BgNavHostPage()
                                 }
                                 composable("about") {
-                                    About()
+                                    AboutNavHostPage()
                                 }
                             }
                         }
