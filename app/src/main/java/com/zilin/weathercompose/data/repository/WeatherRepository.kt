@@ -1,6 +1,5 @@
 package com.zilin.weathercompose.data.repository
 
-import android.net.http.NetworkException
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.kotlinweather2.data.daily.WeatherDailyInfo

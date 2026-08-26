@@ -1,11 +1,7 @@
 package com.zilin.weathercompose.data.db
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 
-@Entity(tableName = "favorite_city")
 data class CityEntity(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val cityName: String, // 城市名
     val cityCode: String, // 城市编码，请求天气用
     val province: String = ""

@@ -1,6 +1,5 @@
 package com.zilin.weathercompose.ui.bg
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,16 +41,25 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.zilin.weathercompose.LocalDrawerState
-import com.zilin.weathercompose.data.fake.FakeData.bgResList
-import com.zilin.weathercompose.util.BgDataStore
-import kotlinx.coroutines.flow.collectLatest
+import com.zilin.weathercompose.MyApp
+import com.zilin.weathercompose.data.repository.LoginRepo
+import com.zilin.weathercompose.vm.BgSettingViewModel
 import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BgNavHostPage(modifier: Modifier = Modifier) {
+    val myApp = LocalContext.current.applicationContext as MyApp
+    val userBgDao = myApp.db.userBgConfigDao()
+    val loginRepo = LoginRepo(myApp)
+
+    val bgVM = viewModel {
+        BgSettingViewModel(userBgConfigDao = userBgDao, loginRepo = loginRepo)
+    }
     val drawerState = LocalDrawerState.current
     val scope = rememberCoroutineScope()
     Scaffold(
@@ -77,44 +85,51 @@ fun BgNavHostPage(modifier: Modifier = Modifier) {
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            BgSetting()
+            BgSetting(vm = bgVM)
         }
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BgSetting() {
-    val context = LocalContext.current
-    // pager状态
-    val pagerState = rememberPagerState(pageCount = { bgResList.size })
-    // 当前预览选中的页面索引（滑动时实时变化）
-    var previewSelectIndex by remember { mutableIntStateOf(0) }
+fun BgSetting(
+    vm: BgSettingViewModel,
+    modifier: Modifier = Modifier
+) {
+    val bgList = remember { listOf("bg1", "bg2", "bg3", "bg4") }
+    // 核心修复这一行
+    val currentBgName by vm.selectedBgResName.collectAsStateWithLifecycle()
+
+    val initPageIndex = remember(currentBgName) {
+        bgList.indexOf(currentBgName ?: "bg1").coerceAtLeast(0)
+    }
+
+    val pagerState = rememberPagerState(
+        initialPage = initPageIndex,
+        pageCount = { bgList.size }
+    )
+    var previewSelectIndex by remember { mutableIntStateOf(initPageIndex) }
     val scope = rememberCoroutineScope()
 
-    // 同步pager滑动位置到previewSelectIndex
     LaunchedEffect(pagerState.currentPage) {
         previewSelectIndex = pagerState.currentPage
     }
-
-    // 页面打开，读取DataStore中已经保存的背景，跳转到对应page
-    LaunchedEffect(Unit) {
-        BgDataStore.getBgIndexFlow(context).collectLatest { savedIndex ->
-            pagerState.scrollToPage(savedIndex)
-        }
+    // 数据库用户背景变更，自动滚动到对应页
+    LaunchedEffect(currentBgName) {
+        val idx = bgList.indexOf(currentBgName ?: "bg1").coerceAtLeast(0)
+        pagerState.scrollToPage(idx)
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(text = "选择背景图片",
+        Text(
+            text = "选择背景图片",
             style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onPrimary)
+            color = MaterialTheme.colorScheme.onPrimary
+        )
 
-        // 横向滑动Pager
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
@@ -125,30 +140,34 @@ fun BgSetting() {
             pageSpacing = 0.dp,
             pageSize = PageSize.Fill
         ) { page ->
-            Box(modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center) {
+            val resName = bgList[page]
+            val ctx = LocalContext.current
+
+            val resId = remember(resName) {
+                ctx.resources.getIdentifier(resName, "drawable", ctx.packageName)
+            }
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
                 Image(
-                    painter = painterResource(id = bgResList[page]),
+                    painter = painterResource(id = resId),
                     contentDescription = "背景预览",
-                    modifier = Modifier
-                        .size(320.dp, 520.dp),
+                    modifier = Modifier.size(320.dp, 520.dp),
                     contentScale = ContentScale.Crop
                 )
             }
         }
 
-        // ✅小圆点指示器
         PagerDotIndicator(
             pagerState = pagerState,
             modifier = Modifier.padding(vertical = 12.dp)
         )
 
-        // 确认按钮：保存当前预览的索引到DataStore
         Button(
             onClick = {
-                scope.launch {
-                    BgDataStore.saveBgIndex(context, previewSelectIndex)
-                }
+                val selectName = bgList[previewSelectIndex]
+                vm.saveBg(selectName)
             },
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -157,18 +176,20 @@ fun BgSetting() {
 
         Button(
             onClick = {
+                vm.saveBg("bg1")
                 scope.launch {
-                    BgDataStore.saveBgIndex(context, 0)
                     pagerState.scrollToPage(0)
                 }
             },
-            modifier = Modifier.fillMaxWidth().padding(top = 10.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp)
         ) {
             Text("恢复默认背景")
         }
-
     }
 }
+
 
 /**
  * Pager小圆点指示器

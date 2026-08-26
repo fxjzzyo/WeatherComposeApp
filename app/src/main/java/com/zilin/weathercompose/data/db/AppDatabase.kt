@@ -3,13 +3,16 @@ package com.zilin.weathercompose.data.db
 import androidx.room.Database
 import androidx.room.RoomDatabase
 
-@Database(entities = [CityEntity::class], version = 1, exportSchema = false)
+@Database(entities = [User::class, UserCity::class, UserBgConfig::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun cityDao(): CityDao
+    abstract fun userDao(): UserDao
+    abstract fun userCityDao(): UserCityDao
+
+    abstract fun userBgConfigDao(): UserBgConfigDao
 
     companion object {
         // 单例，项目中自行初始化（Application）
         @Volatile
-        private var INSTANCE: AppDatabase? = null
+        var INSTANCE: AppDatabase? = null
     }
 }

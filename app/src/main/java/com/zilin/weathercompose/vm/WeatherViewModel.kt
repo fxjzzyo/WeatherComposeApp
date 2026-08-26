@@ -1,4 +1,4 @@
-package com.zilin.weathercompose
+package com.zilin.weathercompose.vm
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

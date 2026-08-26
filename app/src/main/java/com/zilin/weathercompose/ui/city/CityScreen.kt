@@ -4,7 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -37,10 +36,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.zilin.weathercompose.FavoriteCityViewModel
+import com.zilin.weathercompose.vm.FavoriteCityViewModel
 import com.zilin.weathercompose.LocalDrawerState
 import com.zilin.weathercompose.MyApp
 import com.zilin.weathercompose.data.db.CityEntity
+import com.zilin.weathercompose.data.repository.LoginRepo
 import com.zilin.weathercompose.ui.MultiSelectCityDialog
 import kotlinx.coroutines.launch
 
@@ -52,11 +52,12 @@ fun FavoriteCityNavHostPage(onCityClick: (String) -> Unit) {
 
     // 获取Application实例
     val myApp = LocalContext.current.applicationContext as MyApp
-    val dao = myApp.db.cityDao()
+    val userCityDao = myApp.db.userCityDao()
+    val loginRepo = LoginRepo(myApp)
 
-    // 通过factory构造带参数的ViewModel
+    // 构造带参数的ViewModel
     val vm: FavoriteCityViewModel = viewModel {
-        FavoriteCityViewModel(dao)
+        FavoriteCityViewModel(userCityDao, loginRepo)
     }
 
     //控制弹窗显示
@@ -112,7 +113,9 @@ fun FavoriteCityNavHostPage(onCityClick: (String) -> Unit) {
                                 province = it.province
                             )
                         }
-                        vm.addCityList(entityList)
+                        vm.addCityList(entityList) {
+                            // todo fanlulin toast
+                        }
                         showSelectDialog = false
                     }
                 )
@@ -143,21 +146,21 @@ fun CityList(
     modifier: Modifier = Modifier
 ) {
     val cityList =
-        vm.favoriteCityList.collectAsStateWithLifecycle(initialValue = emptyList())
+        vm.cityList.collectAsStateWithLifecycle(initialValue = emptyList())
     if (cityList.value.isEmpty()) {
-        EmptyCity()
+        EmptyCity(modifier = modifier)
     } else {
         LazyColumn(modifier = Modifier.padding(horizontal = 16.dp)) {
             items(items = cityList.value, key = {
                 it.cityName
-            }) { cityEntity ->
+            }) { userCity ->
                 CityItem(
-                    cityEntity.cityName,
+                    userCity.cityName,
                     onItemClick = {
-                        onCityClick(cityEntity.cityName)
+                        onCityClick(userCity.cityName)
                     },
                     onItemDelete = {
-                        vm.removeCity(cityEntity)
+                        vm.deleteCity(userCity.cityName)
                     })
             }
         }
@@ -200,7 +203,7 @@ fun EmptyCity(modifier: Modifier = Modifier) {
     Text(
         "还没有收藏城市呢！",
         color = MaterialTheme.colorScheme.onPrimary,
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         textAlign = TextAlign.Center
     )
 }

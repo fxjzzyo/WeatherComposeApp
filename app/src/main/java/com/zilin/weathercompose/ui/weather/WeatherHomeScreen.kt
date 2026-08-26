@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
@@ -56,25 +57,33 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.kotlinweather2.data.WeatherNow
 import com.zilin.weathercompose.FutureWeather
 import com.zilin.weathercompose.LocalDrawerState
 import com.zilin.weathercompose.R
-import com.zilin.weathercompose.WeatherViewModel
+import com.zilin.weathercompose.vm.WeatherViewModel
 import com.zilin.weathercompose.data.Location
 import com.zilin.weathercompose.data.WeatherDailyState
 import com.zilin.weathercompose.data.WeatherInfo
 import com.zilin.weathercompose.data.WeatherState
 import com.zilin.weathercompose.data.fake.FakeData
+import com.zilin.weathercompose.data.remote.WeatherRetrofitClient
+import com.zilin.weathercompose.data.repository.WeatherRepository
 import com.zilin.weathercompose.ui.OfficialSpinner
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeatherHomeScreen(
-    viewModel: WeatherViewModel,
     jumpCityName: String?
 ) {
+
+    val api = WeatherRetrofitClient.api
+    val repository = WeatherRepository(api)
+    val viewModel = viewModel {
+        WeatherViewModel(repository)
+    }
     // 首页专属状态，放在页面内部，不再污染主Activity
     var isSearchMode by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf("") }
@@ -150,7 +159,7 @@ fun WeatherHomeScreen(
                             isSearchMode = false
                             searchText = ""
                         }) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "退出搜索", tint = Color.White)
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "退出搜索", tint = Color.White)
                         }
                     } else {
                         // 汉堡按钮打开抽屉，子页面直接用LocalDrawerState
