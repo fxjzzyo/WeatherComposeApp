@@ -73,11 +73,9 @@ import com.zilin.weathercompose.ui.login.LoginScreen
 import com.zilin.weathercompose.ui.login.RegisterScreen
 import com.zilin.weathercompose.ui.theme.WeatherComposeTheme
 import com.zilin.weathercompose.ui.weather.WeatherHomeScreen
-import com.zilin.weathercompose.util.BgDataStore
 import com.zilin.weathercompose.vm.AppViewModelFactory
 import com.zilin.weathercompose.vm.BgSettingViewModel
 import com.zilin.weathercompose.vm.LoginViewModel
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 
