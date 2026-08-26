@@ -1,13 +1,14 @@
 package com.zilin.weathercompose
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -40,7 +41,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -54,6 +54,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -63,22 +64,47 @@ import androidx.navigation.navArgument
 import com.example.kotlinweather2.data.daily.WeatherDaily
 import com.zilin.weathercompose.data.DrawerMenuItemBean
 import com.zilin.weathercompose.data.WeatherDailyState
-import com.zilin.weathercompose.data.fake.FakeData
-import com.zilin.weathercompose.data.remote.WeatherRetrofitClient
-import com.zilin.weathercompose.data.repository.WeatherRepository
-import com.zilin.weathercompose.ui.about.About
+import com.zilin.weathercompose.data.repository.LoginRepo
+import com.zilin.weathercompose.ui.DrawerMenu
 import com.zilin.weathercompose.ui.about.AboutNavHostPage
 import com.zilin.weathercompose.ui.bg.BgNavHostPage
-import com.zilin.weathercompose.ui.bg.BgSetting
 import com.zilin.weathercompose.ui.city.FavoriteCityNavHostPage
+import com.zilin.weathercompose.ui.login.LoginScreen
+import com.zilin.weathercompose.ui.login.RegisterScreen
 import com.zilin.weathercompose.ui.theme.WeatherComposeTheme
 import com.zilin.weathercompose.ui.weather.WeatherHomeScreen
 import com.zilin.weathercompose.util.BgDataStore
+import com.zilin.weathercompose.vm.AppViewModelFactory
+import com.zilin.weathercompose.vm.BgSettingViewModel
+import com.zilin.weathercompose.vm.LoginViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
+
+    // 数据库、repo 先初始化（放到 onCreate 或者 by lazy）
+    private val db by lazy {
+        (applicationContext as MyApp).db
+    }
+    private val loginRepo by lazy { LoginRepo(this) }
+
+    private val appViewModelFactory by lazy {
+        AppViewModelFactory(
+            userDao = db.userDao(),
+            userCityDao = db.userCityDao(),
+            userBgConfigDao = db.userBgConfigDao(),
+            loginRepo = loginRepo
+        )
+    }
+
+    private val loginVm: LoginViewModel by viewModels {
+        appViewModelFactory
+    }
+
+    private val bgVm: BgSettingViewModel by viewModels {
+        appViewModelFactory
+    }
 
 
     @SuppressLint("ContextCastToActivity")
@@ -86,20 +112,35 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val api = WeatherRetrofitClient.api
-        val repository = WeatherRepository(api)
-        val viewModel = WeatherViewModel(repository)
-        setContent {
-            var currentBgIndex by remember {
-                mutableIntStateOf(0)
-            }
-            val context = LocalContext.current
 
-            LaunchedEffect(Unit) {
-                BgDataStore.getBgIndexFlow(context).collectLatest { index ->
-                    currentBgIndex = index
+        setContent {
+
+            val context = LocalContext.current as ComponentActivity
+
+            // 当前登录UID（null=未登录）
+            val currentUid by loginRepo.currentUidFlow.collectAsStateWithLifecycle(initialValue = null)
+            Log.i("LoginRepo", "onCreate: $currentUid")
+            // 当前用户背景资源名
+            val userBgResNameState = bgVm.selectedBgResName.collectAsStateWithLifecycle()
+
+            // 解析背景图
+            // 先算出最终drawable id
+            val bgResId = remember(userBgResNameState.value) {
+                val name = userBgResNameState.value
+                val ctx = this@MainActivity
+                if (name.isNullOrBlank()) {
+                    R.drawable.bg1
+                } else {
+                    val resId = ctx.resources.getIdentifier(
+                        name,
+                        "drawable",
+                        ctx.packageName
+                    )
+                    if (resId == 0) R.drawable.bg1 else resId
                 }
             }
+            val bgPainter = painterResource(id = bgResId)
+
             WeatherComposeTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -111,6 +152,42 @@ class MainActivity : ComponentActivity() {
                     val scope = rememberCoroutineScope() // ✅ 组合函数协程作用域
                     // 监听导航栈，拿到当前路由
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
+                    val currentDestination = navBackStackEntry?.destination
+                    val currentRoute = navBackStackEntry?.destination?.route
+
+                    // 判断当前是否是天气页面home（兼容 home / home?cityName=xxx）
+                    val isWeatherPage = currentDestination?.hierarchy?.any {
+                        it.route == "home" || it.route?.startsWith("home?") == true
+                    } == true
+
+                    var backPressTime by remember { mutableLongStateOf(0L) }
+                    BackHandler(enabled = isWeatherPage) {
+                        val now = System.currentTimeMillis()
+                        if (now - backPressTime < 2000) {
+                            this.finish()
+                        } else {
+                            backPressTime = now
+                            Toast.makeText(
+                                this,
+                                "再按一次退出应用",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+
+                    LaunchedEffect(currentUid) {
+                        if (currentUid == null) {
+                            // 未登录 → 去登录页，清空栈
+                            navController.navigate("login") {
+                                popUpTo(0)
+                            }
+                        } else {
+                            // 已登录 → 去首页，清空栈
+                            navController.navigate("home") {
+                                popUpTo(0)
+                            }
+                        }
+                    }
 
                     // 把菜单统一定义成列表，便于维护
                     val menuList = remember {
@@ -118,7 +195,8 @@ class MainActivity : ComponentActivity() {
                             DrawerMenuItemBean(title = "天气", route = "home"),
                             DrawerMenuItemBean(title = "收藏城市", route = "collect_city"),
                             DrawerMenuItemBean(title = "背景设置", route = "bg_setting"),
-                            DrawerMenuItemBean(title = "关于", route = "about")
+                            DrawerMenuItemBean(title = "关于", route = "about"),
+                            DrawerMenuItemBean(title = "退出登录", route = "logout")
                         )
                     }
 
@@ -129,65 +207,28 @@ class MainActivity : ComponentActivity() {
                             drawerState = drawerState,
                             // 抽屉内容
                             drawerContent = {
-                                val currentDestination = navBackStackEntry?.destination
-                                val activity = LocalContext.current as ComponentActivity
-                                // 判断当前是否是天气页面home（兼容 home / home?cityName=xxx）
-                                val isWeatherPage = currentDestination?.hierarchy?.any {
-                                    it.route == "home" || it.route?.startsWith("home?") == true
-                                } == true
-
-                                var backPressTime by remember { mutableLongStateOf(0L) }
-                                BackHandler(enabled = isWeatherPage) {
-                                    val now = System.currentTimeMillis()
-                                    if (now - backPressTime < 2000) {
-                                        activity.finish()
-                                    } else {
-                                        backPressTime = now
-                                        Toast.makeText(activity, "再按一次退出应用", Toast.LENGTH_SHORT).show()
-                                    }
-                                }
-
-                                ModalDrawerSheet(
-                                    modifier = Modifier.requiredWidth(200.dp),
-                                    drawerContainerColor = Color.White.copy(alpha = 0.92f)
-                                ) {
-                                    Column {
-                                        menuList.forEach { item ->
-                                            // 当前路由等于item.route，就选中高亮
-                                            val isSelected =
-                                                navBackStackEntry?.destination?.hierarchy?.any {
-                                                    it.route == item.route || it.route?.startsWith("${item.route}?") == true
-                                                } == true
-
-                                            NavigationDrawerItem(
-                                                label = { Text(item.title) },
-                                                selected = isSelected,
-                                                onClick = {
-                                                    if (!isSelected) {
-                                                        navController.navigate(item.route) {
-                                                            launchSingleTop = true // 避免重复创建页面实例
-                                                        }
-                                                    }
-                                                    scope.launch { drawerState.close() }
-                                                },
-                                                modifier = Modifier.padding(
-                                                    NavigationDrawerItemDefaults.ItemPadding
-                                                ),
-                                                // ========== 自定义选中高亮颜色（可选） ==========
-                                                colors = NavigationDrawerItemDefaults.colors(
-                                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer, //选中背景
-                                                    selectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                                                    unselectedContainerColor = Color.Transparent
-                                                )
-                                            )
-
+                                DrawerMenu(
+                                    menuList = menuList,
+                                    currentRoute = currentRoute,
+                                    onItemClick = { route ->
+                                        scope.launch { drawerState.close() }
+                                        if (route == "logout") {
+                                            loginVm.logout {
+                                                navController.navigate("login") {
+                                                    popUpTo(0)
+                                                }
+                                            }
+                                        } else {
+                                            navController.navigate(route) {
+                                                launchSingleTop = true
+                                            }
                                         }
                                     }
-                                }
+                                )
                             }
                         ) {
                             Image(
-                                painterResource(FakeData.bgResList[currentBgIndex]),
+                                bgPainter,
                                 contentDescription = "",
                                 modifier = Modifier.fillMaxSize(),
                                 contentScale = ContentScale.Crop
@@ -220,10 +261,10 @@ class MainActivity : ComponentActivity() {
                                         }
                                     )
                                 ) { backStackEntry ->
+                                    Log.i("LoginRepo", "home: $currentUid")
                                     val targetCity: String? =
                                         backStackEntry.arguments?.getString("cityName")
                                     WeatherHomeScreen(
-                                        viewModel = viewModel,
                                         jumpCityName = targetCity
                                     )
                                 }
@@ -239,6 +280,23 @@ class MainActivity : ComponentActivity() {
                                 }
                                 composable("about") {
                                     AboutNavHostPage()
+                                }
+                                composable("login") {
+                                    LoginScreen(
+                                        vm = loginVm,
+                                        onGotoRegister = {
+                                            navController.navigate("register")
+                                        },
+                                        onLoginSuccess = {
+                                            navController.navigate("home") {
+                                                popUpTo("login") { inclusive = true }
+                                            }
+                                        })
+                                }
+                                composable("register") {
+                                    RegisterScreen(vm = loginVm, onRegisterSuccess = {
+                                        navController.popBackStack() // 注册成功回到登录页
+                                    })
                                 }
                             }
                         }

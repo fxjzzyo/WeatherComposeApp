@@ -13,4 +13,8 @@ class MyApp : Application() {
             "weather_db"
         ).build()
     }
+
+    override fun onCreate() {
+        super.onCreate()
+    }
 }
