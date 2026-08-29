@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -195,11 +196,10 @@ fun WeatherHomeScreen(
                         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                             DropdownMenuItem(
                                 text = { Text("刷新天气") },
-                                onClick = { expanded = false }
-                            )
-                            DropdownMenuItem(
-                                text = { Text("选择城市") },
-                                onClick = { expanded = false }
+                                onClick = {
+                                    expanded = false
+                                    viewModel.getWeather(selectedCity)
+                                }
                             )
                         }
                     }
@@ -240,14 +240,25 @@ fun TotalScreen(
     modifier: Modifier = Modifier
 ) {
     Box {
-        Column(
-            modifier = modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            WeatherScreen(weatherState, onCitySelect)
-            FutureWeather(featureWeatherState)
+        val weatherState = weatherState.invoke()
+        Log.i("TAG", "WeatherScreen2: $weatherState")
+        when {
+            weatherState.loading -> Loading()
+            weatherState.error != null -> ErrorView(weatherState.error)
+            weatherState.weatherInfo == null -> ErrorView("weather is null")
+            else -> {
+                Column(
+                    modifier = modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    WeatherToday(weatherState.weatherInfo, onCitySelect)
+                    FutureWeather(featureWeatherState)
+                }
+//                WeatherToday(weatherState.weatherInfo, onCitySelect)
+            }
         }
+
 
         OfficialSpinner(
             options = FakeData.cities,
@@ -263,25 +274,9 @@ fun TotalScreen(
 
 
 @Composable
-fun WeatherScreen(
-    provideState: () -> WeatherState, onCitySelect: (String) -> Unit,
-    modifier: Modifier = Modifier.fillMaxWidth()
-) {
-    val weatherState = provideState.invoke()
-    Log.i("TAG", "WeatherScreen2: $weatherState")
-    when {
-        weatherState.loading -> Loading()
-        weatherState.error != null -> ErrorView(weatherState.error)
-        weatherState.weatherInfo == null -> ErrorView("weather is null")
-        else -> {
-            WeatherToday(weatherState.weatherInfo, onCitySelect)
-        }
-    }
-}
-
-@Composable
 fun Loading(modifier: Modifier = Modifier) {
-    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    Box(modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center) {
         CircularProgressIndicator(
             modifier = Modifier.size(100.dp),
             color = Color.White
@@ -292,7 +287,14 @@ fun Loading(modifier: Modifier = Modifier) {
 
 @Composable
 fun ErrorView(errorMsg: String, modifier: Modifier = Modifier) {
-    Text(text = errorMsg, color = Color.White)
+    Box(modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center) {
+        Text(text = errorMsg,
+            color = Color.White,
+            style = MaterialTheme.typography.displayLarge,
+            textAlign = TextAlign.Center)
+    }
+
 }
 
 @Composable

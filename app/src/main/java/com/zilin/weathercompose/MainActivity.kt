@@ -65,6 +65,7 @@ import com.example.kotlinweather2.data.daily.WeatherDaily
 import com.zilin.weathercompose.data.DrawerMenuItemBean
 import com.zilin.weathercompose.data.WeatherDailyState
 import com.zilin.weathercompose.data.repository.LoginRepo
+import com.zilin.weathercompose.data.repository.LoginUiState
 import com.zilin.weathercompose.ui.DrawerMenu
 import com.zilin.weathercompose.ui.about.AboutNavHostPage
 import com.zilin.weathercompose.ui.bg.BgNavHostPage
@@ -110,14 +111,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
         setContent {
-
-            val context = LocalContext.current as ComponentActivity
-
             // 当前登录UID（null=未登录）
-            val currentUid by loginRepo.currentUidFlow.collectAsStateWithLifecycle(initialValue = null)
-            Log.i("LoginRepo", "onCreate: $currentUid")
+//            val currentUid by loginRepo.currentUidFlow.collectAsStateWithLifecycle(initialValue = null)
+            val loginState by loginRepo.loginStateFlow.collectAsStateWithLifecycle(initialValue = LoginUiState.Loading)
+
             // 当前用户背景资源名
             val userBgResNameState = bgVm.selectedBgResName.collectAsStateWithLifecycle()
 
@@ -173,7 +171,25 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    LaunchedEffect(currentUid) {
+                    LaunchedEffect(loginState) {
+                        Log.i("LoginRepo", "LaunchedEffect: $loginState")
+                        when(loginState){
+                            LoginUiState.Loading -> {
+                                // 什么都不做，等待数据读取完成
+                            }
+                            is LoginUiState.Success -> {
+                                val uid = (loginState as LoginUiState.Success).uid
+                                if(uid == null){
+                                    navController.navigate("login"){ popUpTo(0) }
+                                }else{
+                                    navController.navigate("home"){ popUpTo(0) }
+                                }
+                            }
+                        }
+                    }
+
+                    /*LaunchedEffect(currentUid) {
+                        Log.i("LoginRepo", "LaunchedEffect: $currentUid")
                         if (currentUid == null) {
                             // 未登录 → 去登录页，清空栈
                             navController.navigate("login") {
@@ -185,7 +201,7 @@ class MainActivity : ComponentActivity() {
                                 popUpTo(0)
                             }
                         }
-                    }
+                    }*/
 
                     // 把菜单统一定义成列表，便于维护
                     val menuList = remember {
@@ -259,7 +275,7 @@ class MainActivity : ComponentActivity() {
                                         }
                                     )
                                 ) { backStackEntry ->
-                                    Log.i("LoginRepo", "home: $currentUid")
+//                                    Log.i("LoginRepo", "home: $currentUid")
                                     val targetCity: String? =
                                         backStackEntry.arguments?.getString("cityName")
                                     WeatherHomeScreen(

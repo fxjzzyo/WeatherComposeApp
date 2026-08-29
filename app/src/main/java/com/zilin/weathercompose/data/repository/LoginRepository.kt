@@ -9,12 +9,28 @@ import android.util.Log
 import androidx.datastore.preferences.core.edit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-
+import kotlinx.coroutines.flow.*
 // 扩展
 val Context.loginDataStore: DataStore<Preferences> by preferencesDataStore("login_info")
 private val KEY_CURRENT_UID = longPreferencesKey("current_uid")
 
+sealed class LoginUiState {
+    object Loading: LoginUiState()
+    data class Success(val uid: Long?): LoginUiState()
+}
+
 class LoginRepo(private val context: Context) {
+
+    val loginStateFlow: Flow<LoginUiState> = flow {
+        emit(LoginUiState.Loading)
+        emitAll(
+            context.loginDataStore.data
+                .map { prefs ->
+                    val uid = prefs[KEY_CURRENT_UID]
+                    LoginUiState.Success(uid)
+                }
+        )
+    }
     // 获取当前登录uid，null=未登录
     val currentUidFlow: Flow<Long?> = context.loginDataStore.data
         .map { prefs -> prefs[KEY_CURRENT_UID] }
