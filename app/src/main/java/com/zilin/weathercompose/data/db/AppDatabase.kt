@@ -11,8 +11,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun userBgConfigDao(): UserBgConfigDao
 
     companion object {
-        // 单例，项目中自行初始化（Application）
-        @Volatile
-        var INSTANCE: AppDatabase? = null
     }
 }

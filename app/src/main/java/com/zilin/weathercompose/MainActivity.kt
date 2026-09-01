@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
@@ -28,10 +27,7 @@ import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.NavigationDrawerItem
-import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
@@ -39,7 +35,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -50,7 +45,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -65,6 +59,7 @@ import com.example.kotlinweather2.data.daily.WeatherDaily
 import com.zilin.weathercompose.data.DrawerMenuItemBean
 import com.zilin.weathercompose.data.WeatherDailyState
 import com.zilin.weathercompose.data.repository.LoginRepo
+import com.zilin.weathercompose.data.repository.LoginUiState
 import com.zilin.weathercompose.ui.DrawerMenu
 import com.zilin.weathercompose.ui.about.AboutNavHostPage
 import com.zilin.weathercompose.ui.bg.BgNavHostPage
@@ -77,7 +72,6 @@ import com.zilin.weathercompose.vm.AppViewModelFactory
 import com.zilin.weathercompose.vm.BgSettingViewModel
 import com.zilin.weathercompose.vm.LoginViewModel
 import kotlinx.coroutines.launch
-
 
 class MainActivity : ComponentActivity() {
 
@@ -104,20 +98,16 @@ class MainActivity : ComponentActivity() {
         appViewModelFactory
     }
 
-
     @SuppressLint("ContextCastToActivity")
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
         setContent {
-
-            val context = LocalContext.current as ComponentActivity
-
             // 当前登录UID（null=未登录）
-            val currentUid by loginRepo.currentUidFlow.collectAsStateWithLifecycle(initialValue = null)
-            Log.i("LoginRepo", "onCreate: $currentUid")
+//            val currentUid by loginRepo.currentUidFlow.collectAsStateWithLifecycle(initialValue = null)
+            val loginState by loginRepo.loginStateFlow.collectAsStateWithLifecycle(initialValue = LoginUiState.Loading)
+
             // 当前用户背景资源名
             val userBgResNameState = bgVm.selectedBgResName.collectAsStateWithLifecycle()
 
@@ -173,7 +163,25 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    LaunchedEffect(currentUid) {
+                    LaunchedEffect(loginState) {
+                        Log.i("LoginRepo", "LaunchedEffect: $loginState")
+                        when (loginState) {
+                            LoginUiState.Loading -> {
+                                // 什么都不做，等待数据读取完成
+                            }
+                            is LoginUiState.Success -> {
+                                val uid = (loginState as LoginUiState.Success).uid
+                                if (uid == null) {
+                                    navController.navigate("login") { popUpTo(0) }
+                                } else {
+                                    navController.navigate("home") { popUpTo(0) }
+                                }
+                            }
+                        }
+                    }
+
+                    /*LaunchedEffect(currentUid) {
+                        Log.i("LoginRepo", "LaunchedEffect: $currentUid")
                         if (currentUid == null) {
                             // 未登录 → 去登录页，清空栈
                             navController.navigate("login") {
@@ -185,7 +193,7 @@ class MainActivity : ComponentActivity() {
                                 popUpTo(0)
                             }
                         }
-                    }
+                    }*/
 
                     // 把菜单统一定义成列表，便于维护
                     val menuList = remember {
@@ -259,7 +267,7 @@ class MainActivity : ComponentActivity() {
                                         }
                                     )
                                 ) { backStackEntry ->
-                                    Log.i("LoginRepo", "home: $currentUid")
+//                                    Log.i("LoginRepo", "home: $currentUid")
                                     val targetCity: String? =
                                         backStackEntry.arguments?.getString("cityName")
                                     WeatherHomeScreen(
@@ -289,7 +297,8 @@ class MainActivity : ComponentActivity() {
                                             navController.navigate("home") {
                                                 popUpTo("login") { inclusive = true }
                                             }
-                                        })
+                                        }
+                                    )
                                 }
                                 composable("register") {
                                     RegisterScreen(vm = loginVm, onRegisterSuccess = {
@@ -305,12 +314,10 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
 // CompositionLocal 让子页面拿到DrawerState
 val LocalDrawerState = staticCompositionLocalOf<DrawerState> {
     error("DrawerState not provided")
 }
-
 
 @Composable
 fun FutureWeather(
@@ -349,7 +356,8 @@ fun FutureWeatherItem(weatherDaily: WeatherDaily, modifier: Modifier = Modifier)
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(text = "白天：", color = MaterialTheme.colorScheme.onPrimary)
             Image(
-                painter = painterResource(R.drawable.ic_0_2x), contentDescription = "",
+                painter = painterResource(R.drawable.ic_0_2x),
+                contentDescription = "",
                 Modifier.size(12.dp)
             )
             Spacer(Modifier.width(5.dp))
@@ -358,7 +366,8 @@ fun FutureWeatherItem(weatherDaily: WeatherDaily, modifier: Modifier = Modifier)
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(text = "黑夜：", color = MaterialTheme.colorScheme.onPrimary)
             Image(
-                painter = painterResource(R.drawable.ic_0_2x), contentDescription = "",
+                painter = painterResource(R.drawable.ic_0_2x),
+                contentDescription = "",
                 Modifier.size(12.dp)
             )
             Spacer(Modifier.width(5.dp))

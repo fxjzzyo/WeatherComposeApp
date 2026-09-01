@@ -60,7 +60,7 @@ fun FavoriteCityNavHostPage(onCityClick: (String) -> Unit) {
         FavoriteCityViewModel(userCityDao, loginRepo)
     }
 
-    //控制弹窗显示
+    // 控制弹窗显示
     var showSelectDialog by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -78,7 +78,7 @@ fun FavoriteCityNavHostPage(onCityClick: (String) -> Unit) {
                     containerColor = Color.Transparent
                 ),
                 actions = {
-                    //这个页面独有的右上角按钮（添加城市加号）
+                    // 这个页面独有的右上角按钮（添加城市加号）
                     IconButton(onClick = {
                         showSelectDialog = true
                     }) {
@@ -100,12 +100,12 @@ fun FavoriteCityNavHostPage(onCityClick: (String) -> Unit) {
                 onCityClick
             )
 
-            //弹出多选城市弹窗
+            // 弹出多选城市弹窗
             if (showSelectDialog) {
                 MultiSelectCityDialog(
                     onDismiss = { showSelectDialog = false },
                     onConfirm = { selectItems ->
-                        //把选中的候选城市转为Room实体，批量插入
+                        // 把选中的候选城市转为Room实体，批量插入
                         val entityList = selectItems.map {
                             CityEntity(
                                 cityName = it.cityName,
@@ -124,7 +124,6 @@ fun FavoriteCityNavHostPage(onCityClick: (String) -> Unit) {
     }
 }
 
-
 @Composable
 fun FavoriteCityPage(
     vm: FavoriteCityViewModel,
@@ -137,7 +136,6 @@ fun FavoriteCityPage(
         onCityClick = onCityClick
     )
 }
-
 
 @Composable
 fun CityList(
@@ -161,7 +159,8 @@ fun CityList(
                     },
                     onItemDelete = {
                         vm.deleteCity(userCity.cityName)
-                    })
+                    }
+                )
             }
         }
     }
@@ -181,13 +180,16 @@ fun CityItem(
             }
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically) {
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Text(
             text = cityName,
             color = MaterialTheme.colorScheme.onPrimary
         )
-        Spacer(modifier = Modifier
-            .width(16.dp))
+        Spacer(
+            modifier = Modifier
+                .width(16.dp)
+        )
         IconButton(onClick = onItemDelete) {
             Icon(
                 Icons.Default.Delete,

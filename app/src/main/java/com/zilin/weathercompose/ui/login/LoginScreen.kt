@@ -45,9 +45,11 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("天气预报 - 登录",
+        Text(
+            "天气预报 - 登录",
             style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.onPrimary)
+            color = MaterialTheme.colorScheme.onPrimary
+        )
         Spacer(Modifier.height(32.dp))
         TextField(
             value = vm.username,
@@ -72,7 +74,7 @@ fun LoginScreen(
         TextButton(onClick = onGotoRegister) {
             Text("没有账号？去注册")
         }
-        if(toast.isNotEmpty()){
+        if (toast.isNotEmpty()) {
             Text(toast, color = Color.Red, modifier = Modifier.padding(top = 12.dp))
         }
     }
@@ -91,9 +93,11 @@ fun RegisterScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("注册账号",
+        Text(
+            "注册账号",
             style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.onPrimary)
+            color = MaterialTheme.colorScheme.onPrimary
+        )
         Spacer(Modifier.height(32.dp))
         TextField(
             value = vm.username,
@@ -114,7 +118,7 @@ fun RegisterScreen(
         }) {
             Text("注册")
         }
-        if(toast.isNotEmpty()){
+        if (toast.isNotEmpty()) {
             Text(toast, color = Color.Red, modifier = Modifier.padding(top = 12.dp))
         }
     }

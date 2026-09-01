@@ -33,15 +33,14 @@ class WeatherViewModel(private val repository: WeatherRepository) : ViewModel() 
                 city
             }
         }
-
     }
 
     fun getWeather(location: String) {
         viewModelScope.launch {
-            Log.i("TAG", "getWeather location: ${location}")
+            Log.i("TAG", "getWeather location: $location")
 
             _weatherState.update {
-                it.copy(loading = true)
+                it.copy(loading = true, error = null)
             }
             val result = repository.getWeather2(location)
             when (result) {
@@ -95,23 +94,5 @@ class WeatherViewModel(private val repository: WeatherRepository) : ViewModel() 
                 }
             }
         }
-    }
-
-    fun getWeather2(location: String) {
-        /*viewModelScope.launch {
-            val result = repository.getWeather(location)
-            when(result) {
-                is Result.Success -> {
-                    Log.i("TAG", "getWeather: ${result.data}")
-                    _weatherInfo.value = result.data
-                }
-                is Result.Error -> {
-
-                }
-                else -> {
-
-                }
-            }
-        }*/
     }
 }

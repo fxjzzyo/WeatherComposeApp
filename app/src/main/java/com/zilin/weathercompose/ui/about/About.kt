@@ -1,6 +1,5 @@
 package com.zilin.weathercompose.ui.about
 
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -63,9 +62,6 @@ fun AboutNavHostPage(modifier: Modifier = Modifier) {
     }
 }
 
-
-
-
 @Composable
 fun About(modifier: Modifier = Modifier) {
     Column(
@@ -73,10 +69,11 @@ fun About(modifier: Modifier = Modifier) {
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        Text(FakeData.aboutStr,
-            color = MaterialTheme.colorScheme.onPrimary)
+        Text(
+            FakeData.aboutStr,
+            color = MaterialTheme.colorScheme.onPrimary
+        )
     }
-
 }
 
 @Preview

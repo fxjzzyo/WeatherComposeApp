@@ -1,7 +1,6 @@
 package com.zilin.weathercompose.vm
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,10 +16,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class FavoriteCityViewModel(
-    private val userCityDao: UserCityDao,
-    private val loginRepo: LoginRepo
-) : ViewModel() {
+class FavoriteCityViewModel(private val userCityDao: UserCityDao, private val loginRepo: LoginRepo) : ViewModel() {
     // 当前登录uid
     private val currentUidFlow = loginRepo.currentUidFlow
 
@@ -38,8 +34,6 @@ class FavoriteCityViewModel(
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
-
-
 
     fun addCity(cityEntity: CityEntity, onMsg: (String) -> Unit) {
         viewModelScope.launch {

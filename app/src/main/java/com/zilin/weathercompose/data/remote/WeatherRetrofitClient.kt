@@ -13,9 +13,10 @@ object WeatherRetrofitClient {
     private const val KEY = "SJ6CBTRvvKId2t9bV"
     private const val BASE_URL = "https://api.seniverse.com"
 
-    private const val URL_WEATHER_TODAY = "https://api.seniverse.com/v3/weather/now.json?language=zh-Hans&unit=c&key=$KEY"
-    private const val URL_WEATHER_WITH_FUTURE = "https://api.seniverse.com/v3/weather/daily.json?language=zh-Hans&unit=c&start=0&days=5&key=$KEY"
-
+    private const val URL_WEATHER_TODAY = "https://api.seniverse.com/v3/weather/now.json?" +
+        "language=zh-Hans&unit=c&key=$KEY"
+    private const val URL_WEATHER_WITH_FUTURE = "https://api.seniverse.com/v3/weather/daily.json?" +
+        "language=zh-Hans&unit=c&start=0&days=5&key=$KEY"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -36,6 +37,4 @@ object WeatherRetrofitClient {
             .build()
             .create(WeatherApiService::class.java)
     }
-
-
 }

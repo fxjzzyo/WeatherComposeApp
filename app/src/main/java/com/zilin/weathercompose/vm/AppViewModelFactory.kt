@@ -15,12 +15,14 @@ class AppViewModelFactory(
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return when {
-            modelClass.isAssignableFrom(LoginViewModel::class.java) -> LoginViewModel(userDao, loginRepo) as T
-            modelClass.isAssignableFrom(FavoriteCityViewModel::class.java) -> FavoriteCityViewModel(userCityDao, loginRepo) as T
-            modelClass.isAssignableFrom(BgSettingViewModel::class.java) -> BgSettingViewModel(userBgConfigDao, loginRepo) as T
-            else -> throw IllegalArgumentException("Unknown ViewModel class")
-        }
+    override fun <T : ViewModel> create(modelClass: Class<T>): T = when {
+        modelClass.isAssignableFrom(LoginViewModel::class.java) -> LoginViewModel(userDao, loginRepo) as T
+        modelClass.isAssignableFrom(
+            FavoriteCityViewModel::class.java
+        ) -> FavoriteCityViewModel(userCityDao, loginRepo) as T
+        modelClass.isAssignableFrom(
+            BgSettingViewModel::class.java
+        ) -> BgSettingViewModel(userBgConfigDao, loginRepo) as T
+        else -> throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

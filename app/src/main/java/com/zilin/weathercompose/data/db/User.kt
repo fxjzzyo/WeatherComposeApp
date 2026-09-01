@@ -5,13 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "user")
-data class User(
-    @PrimaryKey(autoGenerate = true) val uid: Long = 0,
-    val username: String,
-    val password: String
-)
-
-
+data class User(@PrimaryKey(autoGenerate = true) val uid: Long = 0, val username: String, val password: String)
 
 @Entity(
     tableName = "user_city",
@@ -23,7 +17,6 @@ data class UserCity(
     val cityCode: String, // 城市编码，请求天气用
     val province: String = ""
 )
-
 
 @Entity(tableName = "user_bg_config")
 data class UserBgConfig(
