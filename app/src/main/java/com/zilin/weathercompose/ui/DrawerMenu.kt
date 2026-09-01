@@ -1,8 +1,6 @@
 package com.zilin.weathercompose.ui
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.material3.MaterialTheme
@@ -14,9 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavDestination.Companion.hierarchy
 import com.zilin.weathercompose.data.DrawerMenuItemBean
-import kotlinx.coroutines.launch
 
 @Composable
 fun DrawerMenu(
@@ -41,7 +37,7 @@ fun DrawerMenu(
                         NavigationDrawerItemDefaults.ItemPadding
                     ),
                     colors = NavigationDrawerItemDefaults.colors(
-                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer, //选中背景
+                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer, // 选中背景
                         selectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
                         unselectedContainerColor = Color.Transparent
                     )
@@ -49,5 +45,4 @@ fun DrawerMenu(
             }
         }
     }
-
 }

@@ -2,12 +2,10 @@ package com.zilin.weathercompose.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -59,7 +57,8 @@ fun OfficialSpinner(
                     contentDescription = null,
                     modifier = Modifier.rotate(if (expanded) 180f else 0f),
                     tint = Color.White
-                )},
+                )
+            },
             colors = OutlinedTextFieldDefaults.colors(
                 // 输入框背景透明
                 focusedContainerColor = Color.Transparent,
@@ -84,7 +83,7 @@ fun OfficialSpinner(
         ) {
             Column(
                 modifier = Modifier.heightIn(max = 300.dp)
-                .verticalScroll(rememberScrollState())
+                    .verticalScroll(rememberScrollState())
             ) {
                 options.forEach { city ->
                     DropdownMenuItem(
@@ -109,12 +108,14 @@ fun OfficialSpinner(
                     )
                 }
             }*/
-
         }
     }
 }
 
-@Preview(showBackground = true, name = "OfficialSpinner Preview", showSystemUi = true,
+@Preview(
+    showBackground = true,
+    name = "OfficialSpinner Preview",
+    showSystemUi = true,
     backgroundColor = 0xFF3F51B5
 )
 @Composable

@@ -15,8 +15,8 @@ val Context.loginDataStore: DataStore<Preferences> by preferencesDataStore("logi
 private val KEY_CURRENT_UID = longPreferencesKey("current_uid")
 
 sealed class LoginUiState {
-    object Loading: LoginUiState()
-    data class Success(val uid: Long?): LoginUiState()
+    object Loading : LoginUiState()
+    data class Success(val uid: Long?) : LoginUiState()
 }
 
 class LoginRepo(private val context: Context) {
@@ -31,6 +31,7 @@ class LoginRepo(private val context: Context) {
                 }
         )
     }
+
     // 获取当前登录uid，null=未登录
     val currentUidFlow: Flow<Long?> = context.loginDataStore.data
         .map { prefs -> prefs[KEY_CURRENT_UID] }

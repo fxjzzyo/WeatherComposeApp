@@ -49,7 +49,6 @@ import com.zilin.weathercompose.data.repository.LoginRepo
 import com.zilin.weathercompose.vm.BgSettingViewModel
 import kotlinx.coroutines.launch
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BgNavHostPage(modifier: Modifier = Modifier) {
@@ -190,7 +189,6 @@ fun BgSetting(
     }
 }
 
-
 /**
  * Pager小圆点指示器
  */
@@ -211,8 +209,11 @@ fun PagerDotIndicator(
                     .padding(4.dp)
                     .size(if (isSelected) 12.dp else 8.dp),
                 shape = CircleShape,
-                color = if (isSelected) MaterialTheme.colorScheme.primary
-                else Color.Gray.copy(alpha = 0.4f)
+                color = if (isSelected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    Color.Gray.copy(alpha = 0.4f)
+                }
             ) {}
         }
     }

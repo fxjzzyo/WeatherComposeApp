@@ -10,10 +10,7 @@ import com.zilin.weathercompose.data.db.UserDao
 import com.zilin.weathercompose.data.repository.LoginRepo
 import kotlinx.coroutines.launch
 
-class LoginViewModel(
-    private val userDao: UserDao,
-    private val loginRepo: LoginRepo
-) : ViewModel() {
+class LoginViewModel(private val userDao: UserDao, private val loginRepo: LoginRepo) : ViewModel() {
     var username by mutableStateOf("")
     var password by mutableStateOf("")
 

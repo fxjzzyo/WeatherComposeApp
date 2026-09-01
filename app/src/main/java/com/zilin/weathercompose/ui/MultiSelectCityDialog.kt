@@ -18,7 +18,7 @@ fun MultiSelectCityDialog(
     onConfirm: (List<SelectCityItem>) -> Unit
 ) {
     val candidateList = remember { getMockSelectCityList() }
-    //保存选中的城市code集合，实现多选
+    // 保存选中的城市code集合，实现多选
     val selectedCodeSet = remember { mutableStateSetOf<String>() }
 
     AlertDialog(
@@ -52,7 +52,7 @@ fun MultiSelectCityDialog(
         },
         confirmButton = {
             TextButton(onClick = {
-                //收集选中的城市
+                // 收集选中的城市
                 val selected = candidateList.filter { selectedCodeSet.contains(it.cityCode) }
                 onConfirm(selected)
             }) {

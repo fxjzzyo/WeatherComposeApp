@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -79,7 +78,6 @@ import kotlinx.coroutines.launch
 fun WeatherHomeScreen(
     jumpCityName: String?
 ) {
-
     val api = WeatherRetrofitClient.api
     val repository = WeatherRepository(api)
     val viewModel = viewModel {
@@ -89,7 +87,7 @@ fun WeatherHomeScreen(
     var isSearchMode by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
-    val drawerState = LocalDrawerState.current //拿到抽屉状态，打开侧滑菜单
+    val drawerState = LocalDrawerState.current // 拿到抽屉状态，打开侧滑菜单
 
     val weatherState by viewModel.weatherState.collectAsState()
     val weatherDailyState by viewModel.weatherDailyState.collectAsState()
@@ -128,7 +126,7 @@ fun WeatherHomeScreen(
                                 focusedContainerColor = Color.White.copy(alpha = 0.2f),
                                 unfocusedContainerColor = Color.White.copy(alpha = 0.2f),
                                 focusedIndicatorColor = Color.Transparent,
-                                unfocusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent
                             ),
                             textStyle = TextStyle.Default.copy(color = Color.White),
                             keyboardActions = KeyboardActions(
@@ -207,9 +205,11 @@ fun WeatherHomeScreen(
             )
         }
     ) { innerPadding ->
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(innerPadding)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
             TotalScreen(
                 provideCity = {
                     selectedCity
@@ -226,7 +226,6 @@ fun WeatherHomeScreen(
                     viewModel.getWeatherDaily(city)
                 }
             )
-
         }
     }
 }
@@ -259,7 +258,6 @@ fun TotalScreen(
             }
         }
 
-
         OfficialSpinner(
             options = FakeData.cities,
             selectedValue = provideCity.invoke(),
@@ -269,32 +267,34 @@ fun TotalScreen(
             modifier = Modifier.padding(horizontal = 16.dp)
         )
     }
-
 }
-
 
 @Composable
 fun Loading(modifier: Modifier = Modifier) {
-    Box(modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center) {
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
         CircularProgressIndicator(
             modifier = Modifier.size(100.dp),
             color = Color.White
         )
     }
-
 }
 
 @Composable
 fun ErrorView(errorMsg: String, modifier: Modifier = Modifier) {
-    Box(modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center) {
-        Text(text = errorMsg,
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = errorMsg,
             color = Color.White,
             style = MaterialTheme.typography.displayLarge,
-            textAlign = TextAlign.Center)
+            textAlign = TextAlign.Center
+        )
     }
-
 }
 
 @Composable
@@ -312,12 +312,14 @@ fun WeatherToday(
             .padding(top = 40.dp)
     ) {
         Image(
-            painter = painterResource(R.drawable.ic_0_2x), contentDescription = "",
+            painter = painterResource(R.drawable.ic_0_2x),
+            contentDescription = "",
             modifier = Modifier.size(60.dp)
         )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
-            text = weatherInfo.weatherNow.text, color = MaterialTheme.colorScheme.onPrimary,
+            text = weatherInfo.weatherNow.text,
+            color = MaterialTheme.colorScheme.onPrimary,
             fontSize = TextUnit(20f, TextUnitType.Sp)
         )
         Spacer(modifier = Modifier.height(10.dp))
@@ -348,7 +350,6 @@ fun WeatherToday(
     }
 }
 
-
 @Preview
 @Composable
 private fun WeatherScreenPreview() {
@@ -366,15 +367,18 @@ private fun WeatherScreenPreview() {
                 temperature = "23-26",
                 text = "晴天"
             )
-        ), onCitySelect = {
-
-        })
+        ),
+        onCitySelect = {
+        }
+    )
 }
 
-
 @Preview(
-    device = "id:pixel_6", showSystemUi = false, showBackground = true,
-    uiMode = Configuration.UI_MODE_TYPE_NORMAL, backgroundColor = 0xFF3F51B5
+    device = "id:pixel_6",
+    showSystemUi = false,
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_TYPE_NORMAL,
+    backgroundColor = 0xFF3F51B5
 )
 @Composable
 private fun TotalPreview() {
@@ -386,11 +390,13 @@ private fun TotalPreview() {
             WeatherState(
                 weatherInfo = FakeData.weatherInfo
             )
-        }, {
+        },
+        {
             WeatherDailyState(
                 weatherDaily = FakeData.weatherDailyResponse.weatherDailies
             )
-        }, {
-
-        })
+        },
+        {
+        }
+    )
 }

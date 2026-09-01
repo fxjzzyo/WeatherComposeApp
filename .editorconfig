@@ -24,14 +24,23 @@ ktlint_code_style = android_studio
 max_line_length = 120
 
 # Android Studio格式化：开启声明+调用位置尾随逗号
-ij_kotlin_allow_trailing_comma = true
-ij_kotlin_allow_trailing_comma_on_call_site = true
+ij_kotlin_allow_trailing_comma = false
+ij_kotlin_allow_trailing_comma_on_call_site = false
 
 # Composable、测试函数豁免命名规范
 ktlint_function_naming_ignore_when_annotated_with = Composable, Test, ParameterizedTest
 
 # 关闭严格的函数签名换行校验
 ktlint_standard_function-signature = disabled
+
+# 关闭导入字典序排序检查
+ktlint_standard_import-ordering = disabled
+# 关闭禁止星号导入
+ktlint_standard_no-wildcard-imports = disabled
+
+# 下面两行屏蔽参数内注释检查
+ktlint_standard_value-parameter-comment = disabled
+ktlint_standard_value-argument-comment = disabled
 
 # ij_kotlin_align_in_columns_case_branch = false
 # ij_kotlin_align_multiline_binary_operation = false

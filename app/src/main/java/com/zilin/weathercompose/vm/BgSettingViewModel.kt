@@ -1,7 +1,6 @@
 package com.zilin.weathercompose.vm
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -17,10 +16,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class BgSettingViewModel(
-    private val userBgConfigDao: UserBgConfigDao,
-    private val loginRepo: LoginRepo
-) : ViewModel() {
+class BgSettingViewModel(private val userBgConfigDao: UserBgConfigDao, private val loginRepo: LoginRepo) : ViewModel() {
 
     val bgList = listOf("bg1", "bg2", "bg3", "bg4")
 

@@ -33,12 +33,11 @@ class WeatherViewModel(private val repository: WeatherRepository) : ViewModel() 
                 city
             }
         }
-
     }
 
     fun getWeather(location: String) {
         viewModelScope.launch {
-            Log.i("TAG", "getWeather location: ${location}")
+            Log.i("TAG", "getWeather location: $location")
 
             _weatherState.update {
                 it.copy(loading = true, error = null)

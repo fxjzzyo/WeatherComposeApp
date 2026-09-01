@@ -22,8 +22,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-
     }
 
     buildTypes {
@@ -38,14 +36,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-
-
     buildFeatures {
         compose = true
         viewBinding = true
     }
-
-
 }
 
 dependencies {
@@ -100,6 +94,4 @@ dependencies {
 
     // DataStore
     implementation(libs.androidx.datastore.preferences)
-
-
 }
